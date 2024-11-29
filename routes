@@ -1,0 +1,27 @@
+
+const express = require('express');
+const { getUsuarios, createUsuario } = require('../controllers/usuarioController');
+const router = express.Router();
+
+router.get('/', getUsuarios);
+router.post('/', createUsuario);
+
+module.exports = router;
+
+const { check, validationResult } = require('express-validator');
+
+router.post(
+    '/',
+    [
+        check('email').isEmail().withMessage('El email es inválido'),
+        check('pass').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+    ],
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errores: errors.array() });
+        }
+        next();
+    },
+    createUsuario
+);
